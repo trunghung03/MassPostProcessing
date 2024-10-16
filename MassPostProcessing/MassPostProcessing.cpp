@@ -16,12 +16,14 @@
 #include "stb_image.h"
 #include "stb_image_write.h"
 
+namespace fs = std::filesystem;
+
 GLFWwindow* window{};
 
 bool firstMouse = true;
 
-int SCREEN_WIDTH = 800;
-int SCREEN_HEIGHT = 600;
+int SCREEN_WIDTH = 100;
+int SCREEN_HEIGHT = 100;
 
 bool init();
 void frame_buffer_size_callback(GLFWwindow* window, int width, int height);
@@ -38,7 +40,7 @@ int main()
 		return 1;
 	}
 
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	//glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -82,8 +84,7 @@ int main()
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
-	unsigned int image = loadTexture("resources/images/container.jpg");
-
+	unsigned int image = loadTexture("resources/input/r0_0_100.jpg");
 
 	float displayVertices[] = {
 		// positions   // texCoords
@@ -137,11 +138,15 @@ int main()
 	shader.use();
 	shader.setInt("texture1", 0);
 
-	while (!glfwWindowShouldClose(window))
+	// Get all path
+	std::string path = "resources/input/";
+	std::vector<std::string> pathList{};
+	for (const auto& entry : fs::directory_iterator(path))
+		pathList.push_back(entry.path().string());
+
+	for (std::string ele : pathList)
 	{
-		// input
-		// -----
-		processInput(window);
+		
 
 		// render
 		// ------
@@ -150,6 +155,7 @@ int main()
 
 		// bind textures on corresponding texture units
 		glActiveTexture(GL_TEXTURE0);
+		unsigned int image = loadTexture(ele.c_str());
 		glBindTexture(GL_TEXTURE_2D, image);
 
 		// render container
@@ -158,7 +164,7 @@ int main()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		shader.use();
+		displayShader.use();
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
@@ -169,16 +175,16 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
-		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-		// -------------------------------------------------------------------------------
-		glfwSwapBuffers(window);
-		glfwPollEvents();
+		saveTexture(image, ele.replace(10, 5, "output").c_str());
+		break;
 	}
+
+	std::cout << "Done processing all images" << std::endl;
 
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
-	saveTexture(textureColorbuffer, "output.jpg");
+	saveTexture(image, "output.jpg");
 	glfwTerminate();
 
 	return 0;
@@ -248,7 +254,7 @@ unsigned int loadTexture(const char* filePath, bool isClamped)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	//stbi_set_flip_vertically_on_load(true);
+	stbi_set_flip_vertically_on_load(true);
 	unsigned char* data = stbi_load(filePath, &SCREEN_WIDTH, &SCREEN_HEIGHT, &nrChannels, 0);
 	if (data)
 	{
@@ -283,9 +289,8 @@ unsigned int loadTexture(const char* filePath, bool isClamped)
 	return textureID;
 }
 
-unsigned int saveTexture(GLuint texture, std::string fileName)
+unsigned int saveTexture(GLuint texture, std::string path)
 {
-	std::string fullPath= "resources/output/" + fileName;
 	std::unique_ptr<unsigned int[]> data = std::make_unique<unsigned int[]>(SCREEN_WIDTH * SCREEN_HEIGHT * 3 * sizeof(unsigned int));
 	// Or you can just:
 	// unsigned char *data = new unsigned_char[width * height * 3];
@@ -295,7 +300,7 @@ unsigned int saveTexture(GLuint texture, std::string fileName)
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, data.get());
 
 	stbi_flip_vertically_on_write(true);
-	int ret = stbi_write_jpg(fullPath.c_str(), SCREEN_WIDTH, SCREEN_HEIGHT, 3, data.get(), 100);
+	int ret = stbi_write_jpg(path.c_str(), SCREEN_WIDTH, SCREEN_HEIGHT, 3, data.get(), 100);
 	if (ret == 0)
 	{
 		std::cout << "Failed to save image." << std::endl;
@@ -303,7 +308,7 @@ unsigned int saveTexture(GLuint texture, std::string fileName)
 	}
 	else
 	{
-		std::cout << "Image saved successfully." << std::endl;
+		//std::cout << "Image saved successfully." << std::endl;
 		return 0;
 
 	}
