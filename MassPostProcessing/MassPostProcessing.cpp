@@ -14,6 +14,7 @@
 
 #include "shader.hpp"
 #include "stb_image.h"
+#include "stb_image_write.h"
 
 GLFWwindow* window{};
 
@@ -26,6 +27,7 @@ bool init();
 void frame_buffer_size_callback(GLFWwindow* window, int width, int height);
 int processInput(GLFWwindow* window);
 unsigned int loadTexture(const char* filePath, bool isClamped = false);
+unsigned int saveTexture(GLuint texture, std::string fileName);
 
 int main()
 {
@@ -176,6 +178,7 @@ int main()
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
+	saveTexture(textureColorbuffer, "output.jpg");
 	glfwTerminate();
 
 	return 0;
@@ -278,4 +281,30 @@ unsigned int loadTexture(const char* filePath, bool isClamped)
 	}
 
 	return textureID;
+}
+
+unsigned int saveTexture(GLuint texture, std::string fileName)
+{
+	std::string fullPath= "resources/output/" + fileName;
+	std::unique_ptr<unsigned int[]> data = std::make_unique<unsigned int[]>(SCREEN_WIDTH * SCREEN_HEIGHT * 3 * sizeof(unsigned int));
+	// Or you can just:
+	// unsigned char *data = new unsigned_char[width * height * 3];
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glPixelStorei(GL_PACK_ALIGNMENT, 1);
+	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, data.get());
+
+	stbi_flip_vertically_on_write(true);
+	int ret = stbi_write_jpg(fullPath.c_str(), SCREEN_WIDTH, SCREEN_HEIGHT, 3, data.get(), 100);
+	if (ret == 0)
+	{
+		std::cout << "Failed to save image." << std::endl;
+		return 1;
+	}
+	else
+	{
+		std::cout << "Image saved successfully." << std::endl;
+		return 0;
+
+	}
 }
