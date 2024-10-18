@@ -179,7 +179,16 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+
 		saveTexture(textureColorbuffer, ele.replace(10, 5, "output").c_str());
+		//break;
+	}
+
+	while (!glfwWindowShouldClose(window))
+	{
+		glfwPollEvents();
 	}
 
 	std::cout << "Done processing all images" << std::endl;
@@ -280,6 +289,7 @@ unsigned int loadTexture(const char* filePath, bool isClamped)
 
 		glfwSetWindowSize(window, SCREEN_WIDTH, SCREEN_HEIGHT);
 		glViewport(0, 0, SCREEN_WIDTH, SCREEN_WIDTH);
+		std::cout << "Image size: " << SCREEN_WIDTH << "x" << SCREEN_HEIGHT << std::endl;
 		glTexImage2D(GL_TEXTURE_2D, 0, format, SCREEN_WIDTH, SCREEN_HEIGHT, 0, format, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 		stbi_image_free(data);
@@ -300,7 +310,7 @@ unsigned int saveTexture(GLuint texture, std::string path)
 	// unsigned char *data = new unsigned_char[width * height * 3];
 	glBindTexture(GL_TEXTURE_2D, texture);
 
-	glPixelStorei(GL_PACK_ALIGNMENT, 1);
+	//glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, data.get());
 
 	stbi_flip_vertically_on_write(true);
