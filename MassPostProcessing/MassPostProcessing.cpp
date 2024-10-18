@@ -168,7 +168,7 @@ int main()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		displayShader.use();
+		shader.use();
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
@@ -179,7 +179,7 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
-		saveTexture(image, ele.replace(10, 5, "output").c_str());
+		saveTexture(textureColorbuffer, ele.replace(10, 5, "output").c_str());
 	}
 
 	std::cout << "Done processing all images" << std::endl;
