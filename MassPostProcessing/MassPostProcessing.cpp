@@ -137,11 +137,10 @@ int main()
 	shader.use();
 	shader.setInt("texture1", 0);
 
+	displayShader.use();
+	displayShader.setInt("texture1", 0);
 	while (!glfwWindowShouldClose(window))
 	{
-		// input
-		// -----
-		processInput(window);
 
 		// render
 		// ------
@@ -178,7 +177,7 @@ int main()
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
-	saveTexture(textureColorbuffer, "output.jpg");
+	saveTexture(image, "resources/output/output.jpg");
 	glfwTerminate();
 
 	return 0;
