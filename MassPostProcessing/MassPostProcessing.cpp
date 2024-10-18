@@ -322,7 +322,7 @@ unsigned int saveTexture(GLuint texture, std::string path)
 	}
 	else
 	{
-		//std::cout << "Image saved successfully." << std::endl;
+		std::cout << "Image saved successfully." << std::endl;
 		return 0;
 
 	}
