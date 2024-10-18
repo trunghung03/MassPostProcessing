@@ -20,8 +20,8 @@ GLFWwindow* window{};
 
 bool firstMouse = true;
 
-int SCREEN_WIDTH = 800;
-int SCREEN_HEIGHT = 600;
+int SCREEN_WIDTH = 100;
+int SCREEN_HEIGHT = 100;
 
 bool init();
 void frame_buffer_size_callback(GLFWwindow* window, int width, int height);
