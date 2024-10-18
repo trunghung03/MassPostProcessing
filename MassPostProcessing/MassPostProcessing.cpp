@@ -210,7 +210,7 @@ bool init()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-	window = glfwCreateWindow(800, 600, "Learn OpenGL", NULL, NULL);
+	window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Learn OpenGL", NULL, NULL);
 	if (window == nullptr)
 	{
 		std::cerr << "Failed to create GLFW window!" << std::endl;
@@ -225,7 +225,7 @@ bool init()
 		return false;
 	}
 
-	glViewport(0, 0, 800, 600);
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	glfwSetFramebufferSizeCallback(window, frame_buffer_size_callback);
 
 	return true;
@@ -288,8 +288,14 @@ unsigned int loadTexture(const char* filePath, bool isClamped)
 		}
 
 		glfwSetWindowSize(window, SCREEN_WIDTH, SCREEN_HEIGHT);
-		glViewport(0, 0, SCREEN_WIDTH, SCREEN_WIDTH);
+		glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 		std::cout << "Image size: " << SCREEN_WIDTH << "x" << SCREEN_HEIGHT << std::endl;
+
+		GLint m_viewport[4];
+
+		glGetIntegerv(GL_VIEWPORT, m_viewport);
+
+		std::cout << "Image size: " << m_viewport[0] << " " << m_viewport[1] << " " << m_viewport[2] << " " << m_viewport[3] << std::endl;
 		glTexImage2D(GL_TEXTURE_2D, 0, format, SCREEN_WIDTH, SCREEN_HEIGHT, 0, format, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 		stbi_image_free(data);
