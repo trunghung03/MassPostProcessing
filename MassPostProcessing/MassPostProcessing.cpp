@@ -78,11 +78,11 @@ int main()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	// texture coord attribute
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
 	unsigned int image = loadTexture("resources/input/r0_0_100.jpg");
 
@@ -139,15 +139,16 @@ int main()
 	shader.setInt("texture1", 0);
 
 	// Get all path
-	std::string path = "resources/input/";
+	std::string path = "resources/images/";
 	std::vector<std::string> pathList{};
 	for (const auto& entry : fs::directory_iterator(path))
+	{
+		std::cout << entry.path().string() << std::endl;
 		pathList.push_back(entry.path().string());
+	}
 
 	for (std::string ele : pathList)
 	{
-		
-
 		// render
 		// ------
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -175,7 +176,7 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
-		saveTexture(image, ele.replace(10, 5, "output").c_str());
+		saveTexture(image, ele.replace(10, 6, "output").c_str());
 		break;
 	}
 
@@ -184,7 +185,7 @@ int main()
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
-	saveTexture(image, "output.jpg");
+	//saveTexture(image, "resources/output/output.jpg");
 	glfwTerminate();
 
 	return 0;
