@@ -151,7 +151,6 @@ int main()
 
 		// bind textures on corresponding texture units
 		glActiveTexture(GL_TEXTURE0);
-		unsigned int image = loadTexture(ele.c_str());
 		glBindTexture(GL_TEXTURE_2D, image);
 
 		// render container
