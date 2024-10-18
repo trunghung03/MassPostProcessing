@@ -138,8 +138,11 @@ int main()
 	shader.use();
 	shader.setInt("texture1", 0);
 
+	displayShader.use();
+	displayShader.setInt("texture1", 0);
+
 	// Get all path
-	std::string path = "resources/images/";
+	std::string path = "resources/input/";
 	std::vector<std::string> pathList{};
 	for (const auto& entry : fs::directory_iterator(path))
 	{
@@ -176,8 +179,7 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
-		saveTexture(image, ele.replace(10, 6, "output").c_str());
-		break;
+		saveTexture(image, ele.replace(10, 5, "output").c_str());
 	}
 
 	std::cout << "Done processing all images" << std::endl;
@@ -277,6 +279,7 @@ unsigned int loadTexture(const char* filePath, bool isClamped)
 		}
 
 		glfwSetWindowSize(window, SCREEN_WIDTH, SCREEN_HEIGHT);
+		glViewport(0, 0, SCREEN_WIDTH, SCREEN_WIDTH);
 		glTexImage2D(GL_TEXTURE_2D, 0, format, SCREEN_WIDTH, SCREEN_HEIGHT, 0, format, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 		stbi_image_free(data);
