@@ -38,8 +38,6 @@ int main()
 		return 1;
 	}
 
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
 	//glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CW);
@@ -283,9 +281,8 @@ unsigned int loadTexture(const char* filePath, bool isClamped)
 	return textureID;
 }
 
-unsigned int saveTexture(GLuint texture, std::string fileName)
+unsigned int saveTexture(GLuint texture, std::string path)
 {
-	std::string fullPath = "resources/output/" + fileName;
 	std::unique_ptr<unsigned int[]> data = std::make_unique<unsigned int[]>(SCREEN_WIDTH * SCREEN_HEIGHT * 3 * sizeof(unsigned int));
 	// Or you can just:
 	// unsigned char *data = new unsigned_char[width * height * 3];
@@ -295,7 +292,7 @@ unsigned int saveTexture(GLuint texture, std::string fileName)
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, data.get());
 
 	stbi_flip_vertically_on_write(true);
-	int ret = stbi_write_jpg(fullPath.c_str(), SCREEN_WIDTH, SCREEN_HEIGHT, 3, data.get(), 100);
+	int ret = stbi_write_jpg(path.c_str(), SCREEN_WIDTH, SCREEN_HEIGHT, 3, data.get(), 100);
 	if (ret == 0)
 	{
 		std::cout << "Failed to save image." << std::endl;
