@@ -84,8 +84,6 @@ int main()
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
-	unsigned int image = loadTexture("resources/input/r0_0_100.jpg");
-
 	float displayVertices[] = {
 		// positions   // texCoords
 		-1.0f,  1.0f,  0.0f, 1.0f,
@@ -311,12 +309,12 @@ unsigned int loadTexture(const char* filePath, bool isClamped)
 
 unsigned int saveTexture(GLuint texture, std::string path)
 {
-	std::unique_ptr<unsigned int[]> data = std::make_unique<unsigned int[]>(SCREEN_WIDTH * SCREEN_HEIGHT * 3 * sizeof(unsigned int));
+	std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>((size_t)SCREEN_WIDTH * SCREEN_HEIGHT * 3 * sizeof(unsigned char));
 	// Or you can just:
 	// unsigned char *data = new unsigned_char[width * height * 3];
 	glBindTexture(GL_TEXTURE_2D, texture);
 
-	//glPixelStorei(GL_PACK_ALIGNMENT, 1);
+	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, data.get());
 
 	stbi_flip_vertically_on_write(true);
