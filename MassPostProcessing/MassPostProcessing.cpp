@@ -16,6 +16,8 @@
 #include "stb_image.h"
 #include "stb_image_write.h"
 
+namespace fs = std::filesystem;
+
 GLFWwindow* window{};
 
 bool firstMouse = true;
@@ -37,6 +39,8 @@ int main()
 		std::cerr << "Failed to init!" << std::endl;
 		return 1;
 	}
+
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	//glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -147,6 +151,7 @@ int main()
 
 		// bind textures on corresponding texture units
 		glActiveTexture(GL_TEXTURE0);
+		unsigned int image = loadTexture(ele.c_str());
 		glBindTexture(GL_TEXTURE_2D, image);
 
 		// render container
@@ -166,8 +171,6 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
-		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-		// -------------------------------------------------------------------------------
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
@@ -288,7 +291,7 @@ unsigned int saveTexture(GLuint texture, std::string path)
 	// unsigned char *data = new unsigned_char[width * height * 3];
 	glBindTexture(GL_TEXTURE_2D, texture);
 
-	glPixelStorei(GL_PACK_ALIGNMENT, 1);
+	//glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, data.get());
 
 	stbi_flip_vertically_on_write(true);
