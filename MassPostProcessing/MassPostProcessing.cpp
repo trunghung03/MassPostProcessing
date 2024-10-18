@@ -16,14 +16,12 @@
 #include "stb_image.h"
 #include "stb_image_write.h"
 
-namespace fs = std::filesystem;
-
 GLFWwindow* window{};
 
 bool firstMouse = true;
 
-int SCREEN_WIDTH = 100;
-int SCREEN_HEIGHT = 100;
+int SCREEN_WIDTH = 800;
+int SCREEN_HEIGHT = 600;
 
 bool init();
 void frame_buffer_size_callback(GLFWwindow* window, int width, int height);
@@ -40,7 +38,7 @@ int main()
 		return 1;
 	}
 
-	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	//glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -78,13 +76,14 @@ int main()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	// position attribute
-	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
 	// texture coord attribute
-	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 
-	unsigned int image = loadTexture("resources/input/r0_0_100.jpg");
+	unsigned int image = loadTexture("resources/input/nice.jpg");
+
 
 	float displayVertices[] = {
 		// positions   // texCoords
@@ -138,20 +137,12 @@ int main()
 	shader.use();
 	shader.setInt("texture1", 0);
 
-	displayShader.use();
-	displayShader.setInt("texture1", 0);
-
-	// Get all path
-	std::string path = "resources/input/";
-	std::vector<std::string> pathList{};
-	for (const auto& entry : fs::directory_iterator(path))
+	while (!glfwWindowShouldClose(window))
 	{
-		std::cout << entry.path().string() << std::endl;
-		pathList.push_back(entry.path().string());
-	}
+		// input
+		// -----
+		processInput(window);
 
-	for (std::string ele : pathList)
-	{
 		// render
 		// ------
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -159,7 +150,6 @@ int main()
 
 		// bind textures on corresponding texture units
 		glActiveTexture(GL_TEXTURE0);
-		unsigned int image = loadTexture(ele.c_str());
 		glBindTexture(GL_TEXTURE_2D, image);
 
 		// render container
@@ -179,24 +169,16 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
+		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+		// -------------------------------------------------------------------------------
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-
-		saveTexture(textureColorbuffer, ele.replace(10, 5, "output").c_str());
-		//break;
 	}
-
-	while (!glfwWindowShouldClose(window))
-	{
-		glfwPollEvents();
-	}
-
-	std::cout << "Done processing all images" << std::endl;
 
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
-	//saveTexture(image, "resources/output/output.jpg");
+	saveTexture(textureColorbuffer, "output.jpg");
 	glfwTerminate();
 
 	return 0;
@@ -288,8 +270,7 @@ unsigned int loadTexture(const char* filePath, bool isClamped)
 		}
 
 		glfwSetWindowSize(window, SCREEN_WIDTH, SCREEN_HEIGHT);
-		glViewport(0, 0, SCREEN_WIDTH, SCREEN_WIDTH);
-		std::cout << "Image size: " << SCREEN_WIDTH << "x" << SCREEN_HEIGHT << std::endl;
+		glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 		glTexImage2D(GL_TEXTURE_2D, 0, format, SCREEN_WIDTH, SCREEN_HEIGHT, 0, format, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 		stbi_image_free(data);
@@ -303,18 +284,19 @@ unsigned int loadTexture(const char* filePath, bool isClamped)
 	return textureID;
 }
 
-unsigned int saveTexture(GLuint texture, std::string path)
+unsigned int saveTexture(GLuint texture, std::string fileName)
 {
+	std::string fullPath = "resources/output/" + fileName;
 	std::unique_ptr<unsigned int[]> data = std::make_unique<unsigned int[]>(SCREEN_WIDTH * SCREEN_HEIGHT * 3 * sizeof(unsigned int));
 	// Or you can just:
 	// unsigned char *data = new unsigned_char[width * height * 3];
 	glBindTexture(GL_TEXTURE_2D, texture);
 
-	//glPixelStorei(GL_PACK_ALIGNMENT, 1);
+	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, data.get());
 
 	stbi_flip_vertically_on_write(true);
-	int ret = stbi_write_jpg(path.c_str(), SCREEN_WIDTH, SCREEN_HEIGHT, 3, data.get(), 100);
+	int ret = stbi_write_jpg(fullPath.c_str(), SCREEN_WIDTH, SCREEN_HEIGHT, 3, data.get(), 100);
 	if (ret == 0)
 	{
 		std::cout << "Failed to save image." << std::endl;
@@ -322,7 +304,7 @@ unsigned int saveTexture(GLuint texture, std::string path)
 	}
 	else
 	{
-		//std::cout << "Image saved successfully." << std::endl;
+		std::cout << "Image saved successfully." << std::endl;
 		return 0;
 
 	}
